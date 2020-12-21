@@ -1,22 +1,53 @@
 #!/usr/bin/env ts-node-script
+import {main, server, accPubKey, stellar, axios, hash256Str} from './lib';
 
-import * as stellar from 'stellar-sdk';
+const fundKP = stellar.Keypair.random();
 
-// The source account is the account we will be signing and sending from.
-const accSecret = 'SDQVFGQFE72ON7TOWEQJRCIHRZNZZTHFQS7NDRD56EWWJJSBSKVGQ2BA';
+main(async () => {
+  await server.loadAccount(accPubKey)
+    .then(() => {
+      console.log('account already created');
+      process.exit();
+    })
+    .catch(() => {});
 
-// Derive Keypair object and public key (that starts with a G) from the secret
-const accKeyPair = stellar.Keypair.fromSecret(accSecret);
-const accPubKey = accKeyPair.publicKey();
+  await axios.get(`https://friendbot.stellar.org?addr=${encodeURIComponent(fundKP.publicKey())}`)
+    .then(resp => {
+      console.log('funding account created');
+    });
 
-const destination = 'GB4LWIQJLDJATSG5276H5K6CLP7KCZDZFBOACDYRCUBYJ7TN6OYCWDLN';
+  const fundAcc = await server.loadAccount(fundKP.publicKey());
+  fundAcc.balances.forEach(balance => {
+    console.log('type:', balance.asset_type, ', balance:', balance.balance);
+  });
 
-console.log({accPubKey, destination});
+  const fee = String(await server.fetchBaseFee());
+  console.log('base fee:', fee);
+  const txn = new stellar.TransactionBuilder(fundAcc, {
+    fee,
+    networkPassphrase: stellar.Networks.TESTNET,
+  })
+  .addOperation(stellar.Operation.createAccount({
+    destination: accPubKey,
+    startingBalance: '5000',
+  }))
+  .addMemo(stellar.Memo.hash(
+    hash256Str('Stellar Quest Series 2')
+  ))
+  .setTimeout(30)
+  .build();
 
-// const server = new stellar.Server('https://horizon-testnet.stellar.org');
+  txn.sign(fundKP);
 
-// stellar.Operation.createAccount({
-//   destination,
-//   startingBalance: '5000',
-// })
+  console.log(txn.toEnvelope().toXDR('base64'));
 
+  await server.submitTransaction(txn)
+    .then(res => {
+      console.log(JSON.stringify(res, null, 2));
+      console.log('\nSuccess! View the transaction at: ');
+      console.log(
+        JSON.stringify(
+          stellar.xdr.TransactionMeta.fromXDR(res.result_xdr, 'base64'))
+      );
+    })
+});

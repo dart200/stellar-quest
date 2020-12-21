@@ -57,7 +57,7 @@ module.exports = {
         'no-throw-literal': 'error',
         'no-unsafe-finally': 'error',
         'no-unused-labels': 'error',
-        'no-void': 'error',
+        'no-void': ['error', { "allowAsStatement": true }],
         'eqeqeq': ['warn','always'],
         // can be switched to error once: https://github.com/typescript-eslint/typescript-eslint/pull/2685
         'no-invalid-this': 'warn',
