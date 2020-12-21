@@ -14,7 +14,7 @@ const accPubKey = accKeyPair.publicKey();
 const server = new stellar.Server('https://horizon-testnet.stellar.org');
 
 /** main */
-const main = (func: () => any) => {
+const main = (func: () => Promise<any>) => {
   console.log('running ...');
   const ret = func()
   if (ret instanceof Promise) {
@@ -26,6 +26,21 @@ const main = (func: () => any) => {
   }
 };
 
+type TxnParam = Parameters<typeof server.submitTransaction>[0];
+/** normal submit routine */
+const submit = (txn: TxnParam) => {
+  console.log('submitting ...');
+  return server.submitTransaction(txn)
+    .then(res => {
+      console.log(JSON.stringify(res,null,2));
+      console.log('\nSuccess! View the transaction at: ');
+      console.log(
+        JSON.stringify(
+          stellar.xdr.TransactionResult.fromXDR(res.result_xdr, 'base64'))
+      );
+    })
+};
+
 /** hash a string using SHA-256, return hex */
 const hash256Str = (str: string) => {
   return crypto.createHash('sha256').update(str).digest('hex');
@@ -34,6 +49,7 @@ const hash256Str = (str: string) => {
 export {
   axios,
   main,
+  submit,
   hash256Str,
   stellar,
   accKeyPair,

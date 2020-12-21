@@ -40,14 +40,4 @@ main(async () => {
   txn.sign(fundKP);
 
   console.log(txn.toEnvelope().toXDR('base64'));
-
-  await server.submitTransaction(txn)
-    .then(res => {
-      console.log(JSON.stringify(res, null, 2));
-      console.log('\nSuccess! View the transaction at: ');
-      console.log(
-        JSON.stringify(
-          stellar.xdr.TransactionMeta.fromXDR(res.result_xdr, 'base64'))
-      );
-    })
 });
