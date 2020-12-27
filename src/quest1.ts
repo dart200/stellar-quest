@@ -1,5 +1,5 @@
 #!/usr/bin/env ts-node-script
-import {main, server, accPubKey, stellar, axios, hash256Str} from './lib';
+import {main, server, accPubKey, stellar, axios, hash256Str, submit} from './lib';
 
 const fundKP = stellar.Keypair.random();
 
@@ -38,6 +38,7 @@ main(async () => {
   .build();
 
   txn.sign(fundKP);
+  txn.toEnvelope().toXDR('base64');
 
-  console.log(txn.toEnvelope().toXDR('base64'));
+  await submit(txn);
 });

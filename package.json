@@ -11,6 +11,7 @@
   "author": "dart200@gmail.com",
   "license": "ISC",
   "devDependencies": {
+    "@types/luxon": "^1.25.0",
     "@typescript-eslint/eslint-plugin": "^4.10.0",
     "@typescript-eslint/parser": "^4.10.0",
     "eslint": "^7.16.0",
@@ -19,6 +20,8 @@
   },
   "dependencies": {
     "axios": "^0.21.0",
+    "luxon": "^1.25.0",
+    "moment": "^2.29.1",
     "stellar-sdk": "^7.0.0"
   }
 }
