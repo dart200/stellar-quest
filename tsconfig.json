@@ -7,7 +7,7 @@
     "sourceMap": true,
     "strict": true,
     "target": "es2017",
-    "types": ["jest", "node"]
+    "types": ["node"]
   },
   "compileOnSave": true
 }
