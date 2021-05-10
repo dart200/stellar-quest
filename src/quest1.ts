@@ -21,7 +21,7 @@ main(async () => {
     console.log('type:', balance.asset_type, ', balance:', balance.balance);
   });
 
-  const fee = String(await server.fetchBaseFee());
+  const fee = String((await server.fetchBaseFee())*10);
   console.log('base fee:', fee);
   const txn = new stellar.TransactionBuilder(fundAcc, {
     fee,

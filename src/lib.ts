@@ -5,7 +5,8 @@ import * as crypto from 'crypto';
 import axios from 'axios';
 
 // My quest account
-const accSecret = 'SDQVFGQFE72ON7TOWEQJRCIHRZNZZTHFQS7NDRD56EWWJJSBSKVGQ2BA';
+// const accSecret = 'SDQVFGQFE72ON7TOWEQJRCIHRZNZZTHFQS7NDRD56EWWJJSBSKVGQ2BA'; // series 2
+const accSecret = 'SATVPVUC7S44FJZ245U7GW2DE3NQ7DOMRXYBAETN3FS5S53MW25TGTSA';    // series 3
 
 /** quest account public/private key pair */
 const accKeyPair = stellar.Keypair.fromSecret(accSecret);
@@ -31,6 +32,35 @@ const main = (func: () => Promise<any>) => {
   }
 };
 
+const fundAccount = async (destKeyPair) => {
+  const destKP = destKeyPair || stellar.Keypair.random();
+
+  await axios.get(`https://friendbot.stellar.org?addr=${encodeURIComponent(destKP.publicKey())}`)
+    .then(resp => {
+      console.log('funding account created');
+    });
+
+  return destKP;
+};
+
+const createFunds = () => fundAccount(stellar.Keypair.random())
+
+const getFee = async () => {
+  return String((await server.fetchBaseFee())*10);
+};
+
+const newTxn = async (keypair: stellar.Keypair) => {
+  const fee = await getFee();
+  const accRsp = await server.loadAccount(keypair.publicKey());
+  const acc = new stellar.Account(accRsp.accountId(), accRsp.sequenceNumber());
+  const txn = new stellar.TransactionBuilder(acc, {
+    fee,
+    networkPassphrase: stellar.Networks.TESTNET,
+  }).setTimeout(30)
+
+  return txn;
+};
+
 type TxnParam = Parameters<typeof server.submitTransaction>[0];
 /** normal submit routine */
 const submit = (txn: TxnParam) => {
@@ -45,20 +75,9 @@ const submit = (txn: TxnParam) => {
       );
     })
     .catch(err => {
-      console.log(pretty(err));
-      console.log(err.stack);
+      console.log(err.response.data);
+      // console.log(err.stack);
     })
-};
-
-const createFunds = async () => {
-  const fundKeyPair = stellar.Keypair.random();
-
-  await axios.get(`https://friendbot.stellar.org?addr=${encodeURIComponent(fundKeyPair.publicKey())}`)
-    .then(resp => {
-      console.log('funding account created');
-    });
-
-  return fundKeyPair;
 };
 
 /** hash a string using SHA-256, return hex */
@@ -72,6 +91,9 @@ export {
   main,
   submit,
   createFunds,
+  fundAccount,
+  getFee,
+  newTxn,
   hash256Str,
   stellar,
   accKeyPair,

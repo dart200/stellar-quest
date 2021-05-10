@@ -22,6 +22,6 @@
     "axios": "^0.21.0",
     "luxon": "^1.25.0",
     "moment": "^2.29.1",
-    "stellar-sdk": "^7.0.0"
+    "stellar-sdk": "^8.1.1"
   }
 }
