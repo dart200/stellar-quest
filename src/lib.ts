@@ -49,10 +49,14 @@ const getFee = async () => {
   return String((await server.fetchBaseFee())*10);
 };
 
-const newTxn = async (keypair: stellar.Keypair) => {
+const newTxn = async (keypair:stellar.Keypair, incSequence:number = 0) => {
   const fee = await getFee();
   const accRsp = await server.loadAccount(keypair.publicKey());
-  const acc = new stellar.Account(accRsp.accountId(), accRsp.sequenceNumber());
+  const acc = new stellar.Account(
+    accRsp.accountId(), 
+    String(Number(accRsp.sequenceNumber()) + incSequence)
+  );
+  console.log('creating txn with seq', acc.sequenceNumber());
   const txn = new stellar.TransactionBuilder(acc, {
     fee,
     networkPassphrase: stellar.Networks.TESTNET,
@@ -64,7 +68,7 @@ const newTxn = async (keypair: stellar.Keypair) => {
 type TxnParam = Parameters<typeof server.submitTransaction>[0];
 /** normal submit routine */
 const submit = (txn: TxnParam) => {
-  console.log('submitting ...');
+  console.log('submitting ...', );
   return server.submitTransaction(txn)
     .then(res => {
       console.log(JSON.stringify(res,null,2));
