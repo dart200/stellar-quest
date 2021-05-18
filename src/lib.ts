@@ -80,7 +80,7 @@ const submit = (txn: TxnParam) => {
     })
     .catch(err => {
       console.log(err.response.data);
-      // console.log(err.stack);
+      throw new Error('txn failed');
     })
 };
 
