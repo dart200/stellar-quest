@@ -32,7 +32,7 @@ const main = (func: () => Promise<any>) => {
   }
 };
 
-const fundAccount = async (destKeyPair) => {
+const fundAccount = async (destKeyPair: stellar.Keypair) => {
   const destKP = destKeyPair || stellar.Keypair.random();
 
   await axios.get(`https://friendbot.stellar.org?addr=${encodeURIComponent(destKP.publicKey())}`)
@@ -46,7 +46,7 @@ const fundAccount = async (destKeyPair) => {
 const createFunds = () => fundAccount(stellar.Keypair.random())
 
 const getFee = async () => {
-  return String((await server.fetchBaseFee())*10);
+  return String((await server.fetchBaseFee())*10000);
 };
 
 const newTxn = async (keypair:stellar.Keypair, incSequence:number = 0) => {
