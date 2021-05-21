@@ -23,53 +23,32 @@ main(async () => {
   console.log(accKP.secret());
 
   await server.loadAccount(accKP.publicKey())
-    // .then(async () => {
-    //   const randKP = stellar.Keypair.random();
-
-    //   await fundAccount(randKP);
-    //   const mergeTxn = (await newTxn(accKP))
-    //     .addOperation(stellar.Operation.accountMerge({
-    //       destination: randKP.publicKey(),
-    //     }))
-    //     .build();
-    //   mergeTxn.sign(accKP);
-    //   await submit(mergeTxn);
-
-    //   await fundAccount(accKP);
-    // })
     .catch(async () => {
       await fundAccount(accKP);
     });
 
   const randKP = stellar.Keypair.random();
   await fundAccount(randKP);
-
   const asset = new stellar.Asset('NFT', accKP.publicKey());
 
-  const imgBuf: [string,string | null][] = [];
-  let done = false;
+  const imgSlices: [string,string | null][] = [];
   let rest: string | Buffer = base64_encode('./quest3_6_img.png');
   let num = 0;
   while (rest.length) {
-    console.log(num, rest.length);
-
     const keyPrefix = num.toString().padStart(2, '0');
-    let keyData = rest.slice(0, 62);
+    const keyData = rest.slice(0, 62);
     rest = rest.slice(62);
 
-    let val = '';
-    if (rest.length) {
-      val = rest.slice(0, 64);
-      rest = rest.slice(64);
-    }
+    const val = rest.length ? rest.slice(0, 64) : '';
+    rest = rest.slice(64);
 
-    imgBuf.push([`${keyPrefix}${keyData}`, val]);
+    imgSlices.push([`${keyPrefix}${keyData}`, val]);
     num++;
   }
 
   let issueNftBuilder = (await newTxn(accKP));
 
-  imgBuf.forEach(([key, val], i) => {
+  imgSlices.forEach(([key, val], i) => {
     console.log(i, key, val);
     issueNftBuilder = issueNftBuilder.addOperation(stellar.Operation.manageData({
       name: key,
@@ -93,8 +72,4 @@ main(async () => {
   issueNftTxn.sign(accKP);
   issueNftTxn.sign(randKP);
   await submit(issueNftTxn);
-
 });
-
-// 00iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAgAElEQVR4nG2beY: eGxWMTdmUCtmZWM5ZTMxbDdWMWF1ckYzZTM5M1U4ZzJNWXcyUTBNNEprZ0JBbEVuK0ZDRVdKa2lnUlNoUnBwQw==
-// 00iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAgAElEQVR4nG2beY:  xlV17fP+fec9e31l7V1aurF3e393U8g2MYw2Q0M4JkgBAlEn+FCEWJkigRShRppC
