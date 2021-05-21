@@ -6,9 +6,9 @@ import {
 
 main(async () => {
   /** quest account public/private key pair */
-  const accSecret = 'SCJRSVQFFD4XEEKESVKDV5UR3KLE4JVZRHDC3PGM44IQ2R3OWIHATMUG';    // series 3 quest 5
-  const accKP = stellar.Keypair.fromSecret(accSecret);
-  // const accKP = stellar.Keypair.random();
+  // const accSecret = 'SCJRSVQFFD4XEEKESVKDV5UR3KLE4JVZRHDC3PGM44IQ2R3OWIHATMUG';    // series 3 quest 5
+  // const accKP = stellar.Keypair.fromSecret(accSecret);
+  const accKP = stellar.Keypair.random();
 
   console.log(accKP.publicKey());
   console.log(accKP.secret());
