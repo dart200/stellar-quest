@@ -45,6 +45,19 @@ const fundAccount = async (destKeyPair: stellar.Keypair) => {
 
 const createFunds = () => fundAccount(stellar.Keypair.random())
 
+/** loads test account
+ *    - uses random KP if none given
+ *    - funds KP if not found */
+const loadTestAccount = async (
+  keyPair: stellar.Keypair = stellar.Keypair.random()
+) => {
+  await server.loadAccount(keyPair.publicKey())
+    .catch(async () => {
+      await fundAccount(keyPair);
+    });
+  return keyPair;
+};
+
 const getFee = async () => {
   return String((await server.fetchBaseFee())*10000);
 };
@@ -84,6 +97,27 @@ const submit = (txn: TxnParam) => {
     })
 };
 
+/** add manage data operations to post data to account */
+const addPostDataOps = (data: string, builder: stellar.TransactionBuilder) => {
+  // regex used to chunk string in 126 char chunks
+  const slices = data.match(/.{1,126}/g) || [''];
+
+  // loop over chunks to build transaction
+  slices.forEach((s, i) => {
+    // key = 2 chars of index + 62 chars of data
+    const keyPrefix = i.toString().padStart(2, '0');
+    const keyData = s.slice(0, 62);
+    const name = `${keyPrefix}${keyData}`;
+
+    // val = 64 chars of data
+    const value = s.slice(62);
+
+    builder.addOperation(stellar.Operation.manageData({name, value}));
+
+    console.log(i, name, value);
+  });
+};
+
 /** hash a string using SHA-256, return hex */
 const hash256Str = (str: string) => {
   return crypto.createHash('sha256').update(str).digest('hex');
@@ -93,12 +127,14 @@ export {
   moment,
   axios,
   main,
-  submit,
+  hash256Str,
   createFunds,
   fundAccount,
+  loadTestAccount,
   getFee,
   newTxn,
-  hash256Str,
+  addPostDataOps,
+  submit,
   stellar,
   accKeyPair,
   accPubKey,

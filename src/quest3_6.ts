@@ -15,9 +15,9 @@ const base64_encode = (file) => {
 
 main(async () => {
   /** quest account public/private key pair */
-  const accSecret = 'SCJHVUYYT4FJSFCLFEZFAXMADB4WSWYMJJHFF77UOS5ZYBLDPFU7G7IO';    // series 3 quest 6
-  const accKP = stellar.Keypair.fromSecret(accSecret);
-  // const accKP = stellar.Keypair.random();
+  // const accSecret = 'SCJHVUYYT4FJSFCLFEZFAXMADB4WSWYMJJHFF77UOS5ZYBLDPFU7G7IO';    // series 3 quest 6
+  // const accKP = stellar.Keypair.fromSecret(accSecret);
+  const accKP = stellar.Keypair.random();
 
   console.log(accKP.publicKey());
   console.log(accKP.secret());
@@ -53,7 +53,7 @@ main(async () => {
     issueNftBuilder = issueNftBuilder.addOperation(stellar.Operation.manageData({
       name: key,
       value: val,
-    }))
+    }));
   });
   
   const issueNftTxn = issueNftBuilder
