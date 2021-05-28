@@ -13,8 +13,7 @@ main(async () => {
   // );
 
   const accKP = await loadTestAccount(questKP);
-  console.log(accKP.publicKey());
-  console.log(accKP.secret());
+  console.log(accKP.publicKey(), accKP.secret());
 
   // can get WEB_AUTH_ENDPOINT from here:
   // const res = await axios.get('https://testanchor.stellar.org/.well-known/stellar.toml');
